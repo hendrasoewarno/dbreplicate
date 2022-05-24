@@ -2,8 +2,9 @@
 
 Replikasi database berfungsi untuk mereplikasi database dari komputer Master ke Slave yang berbeda, sehingga setiap saat hasil replikasi pada komputer Slave
 dapat dibangkitkan menjadi Master jika dibutuhkan. Manfaat lain dari replikasi server dapat berfungsi untuk berbagi beban antara server OLTP dan OLAPs,
-dimana server OLTP diharapkan melayani Online Transaksi secara cepat tanpa halangan sedangkan server OLAPs berfungsi untuk pembuatan laporan dan dashboard yang
-cenderung memiliki load yang tinggi.
+dimana server OLTP diharapkan melayani Online Transaksi secara cepat tanpa halangan sedangkan server OLAPs berfungsi untuk pembuatan laporan dan dashboard yang cenderung memiliki load yang tinggi.
+
+Nb. Kami melakukan di MariaDB 10.3
 
 ## Persiapan Server Master
 Berikut ini adalah langkah-langkah yang dilakukan untuk mempersiapkan Server Master dimana menjadi sumber database yang akan direplikasi ke client.
