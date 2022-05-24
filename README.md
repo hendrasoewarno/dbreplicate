@@ -114,7 +114,7 @@ ke klien.
 
 ## Mengaktifkan SSL pada Replikasi Master dan Slave
 Jika replikasi yang anda lakukan adalah melalui jarigan publik, maka keamanan dari data adalah menjadi konsen yang perlu diperhatikan, sehingga perlu diaktifkan enkripsi data antara Master dan Slave.
-
+### Setting pada Master
 Langkah pertama yang perlu dilakukan adalah mempersiapkan sertifikat yang nantinya digunakan pada sisi Master dan sisi slave.
 ```
 $ sudo mkdir -p /etc/mysql/ssl/
@@ -147,6 +147,75 @@ Perlu dipastikan bahwa permission dari directory /etc/mysql/ssl adalah diset own
 ```
 chown -R mysql:mysql /etc/mysql/ssl
 ```
-File-file tersebut perlu diduplikasi ke komputer Slave
-
+Selanjutnya adalah melakukan setting pada file 50-server.cnf dan 50-client.cnf/
 ```
+pico /etc/mysql/mariadb.conf.d/50-server.cnf
+```
+dan lakukan perubahan pada file
+```
+#
+# * Security Features
+#
+# Read the manual, too, if you want chroot!
+#chroot = /var/lib/mysql/
+#
+# For generating SSL certificates you can use for example the GUI tool "tinyca".
+#
+ssl-ca = /etc/mysql/ssl/ca-cert.pem
+ssl-cert = /etc/mysql/ssl/server-cert.pem
+ssl-key = /etc/mysql/ssl/server-key.pem
+```
+```
+pico /etc/mysql/mariadb.conf.d/50-client.cnf
+```
+```
+# Example of client certificate usage
+ssl-ca=/etc/mysql/ssl/ca-cert.pem
+ssl-cert=/etc/mysql/ssl/client-cert.pem
+ssl-key=/etc/mysql/ssl/client-key.pem
+```
+Setelah melakukan setting tersebut diatas, perlu direstart service MariaDB
+```
+service mariadb restart
+```
+Selanjutnya adalah melakukan pemeriksaan hasil pengaktifan SSL pada server dengan keberadaan baris SSL: Cipher in use is DHE-RSA-AES256-SHA
+```
+mysql -uroot -p
+
+status;
+
+--------------
+mysql  Ver 15.1 Distrib 10.3.24-MariaDB, for debian-linux-gnu (x86_64) using readline 5.2
+
+Connection id:          50
+Current database:
+Current user:           root@localhost
+SSL:                    Cipher in use is DHE-RSA-AES256-SHA
+Current pager:          stdout
+Using outfile:          ''
+Using delimiter:        ;
+Server:                 MariaDB
+Server version:         10.3.24-MariaDB-2-log Debian buildd-unstable
+Protocol version:       10
+Connection:             Localhost via UNIX socket
+Server characterset:    utf8mb4
+Db     characterset:    utf8mb4
+Client characterset:    utf8mb4
+Conn.  characterset:    utf8mb4
+UNIX socket:            /var/run/mysqld/mysqld.sock
+Uptime:                 1 hour 49 min 42 sec
+
+Threads: 9  Questions: 128  Slow queries: 2  Opens: 33  Flush tables: 1  Open tables: 27  Queries per second avg: 0.019
+--------------
+```
+### Setting pada Slave
+Duplikasi semua file sertifikat yang ada pada Master (/etc/mysql/ssl) ke komputer Slave pada directory yang sama, dan lakukan perubahan pada 50-client.cnf
+pico /etc/mysql/mariadb.conf.d/50-client.cnf
+```
+```
+# Example of client certificate usage
+ssl-ca=/etc/mysql/ssl/ca-cert.pem
+ssl-cert=/etc/mysql/ssl/client-cert.pem
+ssl-key=/etc/mysql/ssl/client-key.pem
+```
+Setelah melakukan setting tersebut diatas, perlu direstart service MariaDB
