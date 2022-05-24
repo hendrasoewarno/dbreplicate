@@ -178,10 +178,16 @@ Setelah melakukan setting tersebut diatas, perlu direstart service MariaDB
 ```
 service mariadb restart
 ```
-Selanjutnya adalah melakukan pemeriksaan hasil pengaktifan SSL pada server dengan keberadaan baris SSL: Cipher in use is DHE-RSA-AES256-SHA
+Selanjutnya adalah melakukan pemeriksaan hasil pengaktifan SSL:
 ```
 mysql -uroot -p
-
+```
+Atur kembali replikasi dari Slave mensyaratkan SSL
+```
+GRANT REPLICATION SLAVE ON *.* TO 'replication'@'%' REQUIRE SSL;
+```
+Periksa kembali status server dengan keberadaan baris SSL: Cipher in use is DHE-RSA-AES256-SHA
+```
 status;
 
 --------------
