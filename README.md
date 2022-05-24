@@ -111,3 +111,42 @@ Pastikan tidak error, terutama koneksi dari slave ke master, dan terdapat info S
 ## Menguji keberhasilan replikasi Master Slave
 Untuk menguji keberhasilan replikasi, maka anda dapat mencoba menambahkan database/tabel/data pada master, dan memeriksa kembali ke klien apakah tereplikasi
 ke klien.
+
+## Mengaktifkan SSL pada Replikasi Master dan Slave
+Jika replikasi yang anda lakukan adalah melalui jarigan publik, maka keamanan dari data adalah menjadi konsen yang perlu diperhatikan, sehingga perlu diaktifkan enkripsi data antara Master dan Slave.
+
+Langkah pertama yang perlu dilakukan adalah mempersiapkan sertifikat yang nantinya digunakan pada sisi Master dan sisi slave.
+```
+$ sudo mkdir -p /etc/mysql/ssl/
+$ cd /etc/mysql/ssl/
+$ sudo openssl genrsa 2048 > ca-key.pem
+## set CA common name to "MariaDB admin" ##
+$ sudo openssl req -new -x509 -nodes -days 730 -key ca-key.pem -out ca-cert.pem
+## set server certificate common name to "MariaDB master" ##
+$ sudo openssl req -newkey rsa:2048 -days 730 -nodes -keyout server-key.pem -out server-req.pem
+$ sudo openssl rsa -in server-key.pem -out server-key.pem
+$ sudo openssl x509 -req -in server-req.pem -days 730 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out server-cert.pem
+## set client common name to "MariaDB slave" ##
+$ sudo openssl req -newkey rsa:2048 -days 730 -nodes -keyout client-key.pem -out client-req.pem
+$ sudo openssl rsa -in client-key.pem -out client-key.pem
+$ sudo openssl x509 -req -in client-req.pem -days 730 -CA ca-cert.pem -CAkey ca-key.pem -set_serial 01 -out client-cert.pem
+$ sudo openssl verify -CAfile ca-cert.pem server-cert.pem client-cert.pem
+```
+Jika perintah tersebut selesai dilakukan, maka akan menghasilkan file-file berikut ini pada directory /etc/mysql/ssl
+```
+-rw-r--r-- 1 mysql mysql 1318 May 23 21:53 ca-cert.pem
+-rw-r--r-- 1 mysql mysql 1675 May 23 21:52 ca-key.pem
+-rw-r--r-- 1 mysql mysql 1172 May 23 21:55 client-cert.pem
+-rw------- 1 mysql mysql 1675 May 23 21:55 client-key.pem
+-rw-r--r-- 1 mysql mysql  997 May 23 21:55 client-req.pem
+-rw-r--r-- 1 mysql mysql 1172 May 23 21:54 server-cert.pem
+-rw------- 1 mysql mysql 1679 May 23 21:54 server-key.pem
+-rw-r--r-- 1 mysql mysql  997 May 23 21:53 server-req.pem
+```
+Perlu dipastikan bahwa permission dari directory /etc/mysql/ssl adalah diset owner dan group ke mysql dengan perintah sebagai berikut:
+```
+chown -R mysql:mysql /etc/mysql/ssl
+```
+File-file tersebut perlu diduplikasi ke komputer Slave
+
+```
