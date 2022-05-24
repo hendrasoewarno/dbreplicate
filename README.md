@@ -207,9 +207,11 @@ Uptime:                 1 hour 49 min 42 sec
 
 Threads: 9  Questions: 128  Slow queries: 2  Opens: 33  Flush tables: 1  Open tables: 27  Queries per second avg: 0.019
 --------------
+
 ```
 ### Setting pada Slave
 Duplikasi semua file sertifikat yang ada pada Master (/etc/mysql/ssl) ke komputer Slave pada directory yang sama, dan lakukan perubahan pada 50-client.cnf
+```
 pico /etc/mysql/mariadb.conf.d/50-client.cnf
 ```
 ```
