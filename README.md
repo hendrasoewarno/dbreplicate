@@ -185,6 +185,8 @@ mysql -uroot -p
 Atur kembali replikasi dari Slave mensyaratkan SSL
 ```
 GRANT REPLICATION SLAVE ON *.* TO 'replication'@'%' REQUIRE SSL;
+FLUSH PRIVILEGES;
+SHOW GRANTS;
 ```
 Periksa kembali status server dengan keberadaan baris SSL: Cipher in use is DHE-RSA-AES256-SHA
 ```
